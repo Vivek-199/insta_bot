@@ -1,12 +1,12 @@
 import requests
 
-APP_ACCESS_TOKEN = '4870715640.a48e759.874aba351e5147eca8a9d36b9688f494'
+APP_ACCESS_TOKEN = "2315378126.38ebf37.66212be371364b8a87b820de622382e8"
 
-BASE_URL = 'https://api.instagram.com/v1/'
+BASE_URL = "https://api.instagram.com/v1/"
 
 def self_info():
-    request_url = (BASE_URL + 'users/self/?access_token=%s') % (APP_ACCESS_TOKEN)
-    print 'GET request url : %s' % (request_url)
+    request_url = (BASE_URL + "users/self/?access_token=%s") % (APP_ACCESS_TOKEN)
+    print "GET request url : %s" % (request_url)
     user_info = requests.get(request_url).json()
 
     if user_info['meta']['code'] == 200:
@@ -56,6 +56,40 @@ def get_user_info(insta_username):
     else:
         print 'Status code other than 200 received!'
 
+
+def get_own_post():
+    request_url = (BASE_URL + 'users/self/media/recent/?access_token=%s') % (APP_ACCESS_TOKEN)
+    print "GET request url : %s" % (request_url)
+    own_media = requests.get(request_url).json()
+
+    if own_media['meta']['code'] == 200:
+        if len(own_media['data']):
+            return own_media['data'][0]['id']
+        else:
+            print 'Post does not exist!'
+    else:
+        print 'Status code other than 200 received!'
+
+
+
+
+def get_user_post(insta_username):
+    user_id = get_user_id(insta_username)
+    if user_id == None:
+        print 'User does not exist!'
+        exit()
+    request_url = (BASE_URL + 'users/%s/media/recent/?access_token=%s') % (user_id, APP_ACCESS_TOKEN)
+    print 'GET request url : %s' % (request_url)
+    user_media = requests.get(request_url).json()
+    if user_media['meta']['code'] == 200:
+        if len(user_media['data']):
+            return user_media['data'][0]['id']
+        else:
+            print "There is no recent post!"
+    else:
+        print "Status code other than 200 received!"
+
+
 def start_app():
     while True:
         print '\n'
@@ -63,7 +97,8 @@ def start_app():
         print 'Here are your menu options:'
         print "1. Get your own details\n"
         print "2. Get details of a user by username\n"
-
+        print "3. see your recent post\n"
+        print "4. see other user's recent post\n"
         print "0. Exit"
 
         choice=raw_input("Enter you choice: ")
@@ -72,7 +107,11 @@ def start_app():
         elif choice=="2":
             insta_username = raw_input("Enter the username of the user: ")
             get_user_info(insta_username)
-
+        elif choice=="3":
+            get_own_post()
+        elif choice=="4":
+            insta_username = raw_input("Enter the username of the user: ")
+            get_user_post(insta_username)
         elif choice=="0":
             exit()
         else:
