@@ -1,4 +1,4 @@
-import requests
+import requests,urllib
 
 APP_ACCESS_TOKEN = "2315378126.38ebf37.66212be371364b8a87b820de622382e8"
 
@@ -64,7 +64,10 @@ def get_own_post():
 
     if own_media['meta']['code'] == 200:
         if len(own_media['data']):
-            return own_media['data'][0]['id']
+            image_name = own_media['data'][0]['id'] + '.jpeg'
+            image_url = own_media['data'][0]['images']['standard_resolution']['url']
+            urllib.urlretrieve(image_url, image_name)
+            print 'Your image has been downloaded!'
         else:
             print 'Post does not exist!'
     else:
@@ -83,11 +86,52 @@ def get_user_post(insta_username):
     user_media = requests.get(request_url).json()
     if user_media['meta']['code'] == 200:
         if len(user_media['data']):
-            return user_media['data'][0]['id']
+            image_name = user_media['data'][0]['id'] + '.jpeg'
+            image_url = user_media['data'][0]['images']['standard_resolution']['url']
+            urllib.urlretrieve(image_url, image_name)
+            print 'Your image has been downloaded!'
         else:
             print "There is no recent post!"
     else:
         print "Status code other than 200 received!"
+
+
+def get_post_id(insta_username):
+    user_id = get_user_id(insta_username)
+    if user_id == None:
+        print 'User does not exist!'
+        exit()
+    request_url = (BASE_URL + 'users/%s/media/recent/?access_token=%s') % (user_id, APP_ACCESS_TOKEN)
+    print 'GET request url : %s' % (request_url)
+    user_media = requests.get(request_url).json()
+
+    if user_media['meta']['code'] == 200:
+        if len(user_media['data']):
+            return user_media['data'][0]['id']
+        else:
+            print 'There is no recent post of the user!'
+            exit()
+    else:
+        print 'Status code other than 200 received!'
+        exit()
+
+
+def get_like_list(insta_username):
+    media_id = get_post_id(insta_username)
+    request_url = (BASE_URL + 'media/%s/likes?access_token=%s') % (media_id, APP_ACCESS_TOKEN)
+    print 'GET request url : %s' % (request_url)
+
+
+def like_a_post(insta_username):
+    media_id = get_post_id(insta_username)
+    request_url = (BASE_URL + 'media/%s/likes') % (media_id)
+    payload = {"access_token": APP_ACCESS_TOKEN}
+    print 'POST request url : %s' % (request_url)
+    post_a_like = requests.post(request_url, payload).json()
+    if post_a_like['meta']['code'] == 200:
+        print 'Like was successful!'
+    else:
+        print 'Your like was unsuccessful. Try again!'
 
 
 def start_app():
@@ -99,6 +143,8 @@ def start_app():
         print "2. Get details of a user by username\n"
         print "3. see your recent post\n"
         print "4. see other user's recent post\n"
+        print "5. Get a list of people who have liked the recent post of a user\n"
+        print "6. Like the recent post of a user\n"
         print "0. Exit"
 
         choice=raw_input("Enter you choice: ")
@@ -112,6 +158,12 @@ def start_app():
         elif choice=="4":
             insta_username = raw_input("Enter the username of the user: ")
             get_user_post(insta_username)
+        elif choice == "5":
+            insta_username = raw_input("Enter the username of the user: ")
+            get_like_list(insta_username)
+        elif choice == "6":
+            insta_username = raw_input("Enter the username of the user: ")
+            like_a_post(insta_username)
         elif choice=="0":
             exit()
         else:
