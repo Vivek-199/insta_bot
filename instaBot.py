@@ -6,6 +6,8 @@ APP_ACCESS_TOKEN = "2315378126.38ebf37.66212be371364b8a87b820de622382e8"
 
 BASE_URL = "https://api.instagram.com/v1/"
 
+#Function declaration to get your own info
+
 def self_info():
     request_url = (BASE_URL + "users/self/?access_token=%s") % (APP_ACCESS_TOKEN)
     print "GET request url : %s" % (request_url)
@@ -22,6 +24,7 @@ def self_info():
     else:
         print "Status code other than 200 received!"
 
+#Function declaration to get the ID of a user by username
 
 def get_user_id(insta_username):
     request_url = (BASE_URL + 'users/search?q=%s&access_token=%s') % (insta_username, APP_ACCESS_TOKEN)
@@ -37,6 +40,7 @@ def get_user_id(insta_username):
         print 'Status code other than 200 received!'
         exit()
 
+#Function declaration to get the info of a user by username
 
 def get_user_info(insta_username):
     user_id = get_user_id(insta_username)
@@ -58,6 +62,7 @@ def get_user_info(insta_username):
     else:
         print 'Status code other than 200 received!'
 
+#Function declaration to get your recent post
 
 def get_self_post():
     request_url = (BASE_URL + 'users/self/media/recent/?access_token=%s') % (APP_ACCESS_TOKEN)
@@ -75,8 +80,7 @@ def get_self_post():
     else:
         print 'Status code other than 200 received!'
 
-
-
+#Function declaration to get the recent post of a user by username
 
 def get_user_post(insta_username):
     user_id = get_user_id(insta_username)
@@ -97,6 +101,7 @@ def get_user_post(insta_username):
     else:
         print "Status code other than 200 received!"
 
+#Function declaration to get the ID of the recent post of a user by username
 
 def get_post_id(insta_username):
     user_id = get_user_id(insta_username)
@@ -117,12 +122,18 @@ def get_post_id(insta_username):
         print 'Status code other than 200 received!'
         exit()
 
-
+#Function declaration to get like list of recent post
 def get_like_list(insta_username):
     media_id = get_post_id(insta_username)
     request_url = (BASE_URL + 'media/%s/likes?access_token=%s') % (media_id, APP_ACCESS_TOKEN)
     print 'GET request url : %s' % (request_url)
+    like_list = requests.get(request_url).json()
+    if like_list["meta"]["code"] == 200:
+        print like_list
+    else:
+        print "retry"
 
+#Function declaration to like the recent post of a user
 
 def like_a_post(insta_username):
     media_id = get_post_id(insta_username)
@@ -135,12 +146,18 @@ def like_a_post(insta_username):
     else:
         print 'Your like was unsuccessful. Try again!'
 
-
+#Function declaration to get comment list of recent post
 def get_comment_list(insta_username):
     media_id = get_post_id(insta_username)
     request_url = (BASE_URL + 'media/%s/comments?access_token=%s') % (media_id, APP_ACCESS_TOKEN)
     print 'GET request url : %s' % (request_url)
+    comment_list = requests.get(request_url).json()
+    if comment_list["meta"]["code"] == 200:
+        print  comment_list
+    else:
+        print "retry"
 
+#Function declaration to make a comment on the recent post of the user
 
 def post_a_comment(insta_username):
     media_id = get_post_id(insta_username)
@@ -156,6 +173,7 @@ def post_a_comment(insta_username):
     else:
         print "Unable to add comment. Try again!"
 
+#Function declaration to make delete negative comments from the recent post
 
 def delete_negative_comment(insta_username):
     media_id = get_post_id(insta_username)
@@ -186,9 +204,9 @@ def delete_negative_comment(insta_username):
     else:
         print 'Status code other than 200 received!'
 
+#Function declaration to start bot
 
-
-def start_app():
+def start_bot():
     while True:
         print "\n"
         print "Hey! Welcome to instaBot!"
@@ -235,4 +253,4 @@ def start_app():
         else:
             print "wrong choice"
 
-start_app()
+start_bot()
